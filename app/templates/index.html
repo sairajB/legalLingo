@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Legal Document Simplifier</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Legal Document Simplifier</h1>
+        <p>Upload a legal document to convert it into plain, easy-to-understand language.</p>
+        
+        <div class="upload-form">
+            <h2>Upload Your Document</h2>
+            <p>Supported formats: PDF, DOCX, TXT</p>
+            
+            <form id="document-form" enctype="multipart/form-data">
+                <input type="file" id="document" name="file" accept=".pdf,.docx,.txt" class="file-input" required>
+                <button type="submit" class="submit-btn">Simplify Document</button>
+            </form>
+            <div id="error-message"></div>
+        </div>
+        
+        <div id="loader" class="loader"></div>
+        
+        <div id="results" class="results">
+            <h2>Simplified Document</h2>
+            
+            <div class="result-section">
+                <h3>📄 Document Type</h3>
+                <p id="document-type"></p>
+            </div>
+
+            
+            <div class="result-section">
+                <h3>🔑 Key Points</h3>
+                <div class="key-points">
+                    <ul id="key-points"></ul>
+                </div>
+            </div>
+            
+            <div class="result-section">
+                <h3>📝 Simplified Explanation</h3>
+                <p id="simple-explanation"></p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('document-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('document');
+            const file = fileInput.files[0];
+            const errorMessage = document.getElementById('error-message');
+            
+            if (!file) {
+                errorMessage.textContent = "Please select a document to upload";
+                errorMessage.style.display = "block";
+                return;
+            }
+            
+            // Hide results and error, show loader
+            document.getElementById('results').style.display = 'none';
+            errorMessage.style.display = 'none';
+            document.getElementById('loader').style.display = 'block';
+            
+            // Create form data
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch('/api/simplify/', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || "Error processing document");
+                }
+                
+                const result = await response.json();
+                
+                // Hide loader, show results
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('results').style.display = 'block';
+                
+                // Populate results
+                document.getElementById('document-type').textContent = result.document_type;
+                //document.getElementById('main-purpose').textContent = result.main_purpose;
+                //document.getElementById('what-this-means').textContent = result.what_this_means;
+                document.getElementById('simple-explanation').textContent = result.simple_explanation;
+                
+                // Populate key points
+                const keyPointsList = document.getElementById('key-points');
+                keyPointsList.innerHTML = '';
+                
+                result.key_points.forEach(point => {
+                    const li = document.createElement('li');
+                    li.textContent = point;
+                    keyPointsList.appendChild(li);
+                });
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loader').style.display = 'none';
+                errorMessage.textContent = error.message || "An error occurred while processing your document.";
+                errorMessage.style.display = "block";
+            }
+        });
+    </script>
+</body>
+</html>
