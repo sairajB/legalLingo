@@ -6,7 +6,7 @@ import fitz  # PyMuPDF
 from sentence_transformers import SentenceTransformer
 
 # ---- Configure Gemini API ----
-genai.configure(api_key="AIzaSyBVbrz_Ngz9CmzFa04vWTcuFf-AqiwKUFY")  # Replace with your actual API key
+genai.configure(api_key="GEMINI_API_KEY")  # Replace with your actual API key
 model = genai.GenerativeModel("gemini-1.5-flash")
 
 # ---- Cache Embedding Model ----
