@@ -71,7 +71,6 @@ tmp/
 .transformers_cache/
 .torch/
 .spacy_models/
-models/
 
 # Database
 *.db
